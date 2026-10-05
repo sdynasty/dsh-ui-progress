@@ -1,0 +1,50 @@
+.wrap {
+  /* No positioning here: the badge must resolve against the sidebar row
+     (made the containing block by row-badge.css), not against this glyph wrap. */
+  display: inline-flex;
+  line-height: 0;
+}
+
+/* Expanded sidebar: the row docks the badge at its right edge, mirroring the
+   panel rows' own trailing pills. */
+.badge {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 8px;
+  background: var(--dsw-alias-state-business-primary);
+  color: var(--dsw-static-neutral-50);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Collapsed rail: the row is the 36px glyph box, so the badge hugs its
+   top-right corner. */
+:global([data-sidebar-collapsed='true']) .badge {
+  top: 1px;
+  right: 1px;
+  transform: none;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 4px;
+  border-radius: 7px;
+  font-size: 9px;
+  line-height: 14px;
+}
+
+/* A Session awaits its user: the badge escalates to amber. */
+.badgePending {
+  background: var(--dsw-alias-state-warn-label);
+}
+
+/* No pending interaction but completions await a first view: green. */
+.badgeUnread {
+  background: var(--dsw-alias-state-success-primary);
+}

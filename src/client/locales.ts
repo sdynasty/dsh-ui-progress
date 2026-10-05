@@ -1,0 +1,88 @@
+/**
+ * `progress` namespace dictionaries: the sidebar panel entry, the board page,
+ * and the completion-log grouping copy.
+ */
+
+/** Dictionary namespace owned by this plugin. */
+export const NS = 'progress'
+
+/** Simplified Chinese dictionary (the key-set source of truth). */
+export const zh = {
+  'panel.label': '进度看板',
+  'panel.badge.one': '{count} 个会话需要关注',
+  'panel.badge.other': '{count} 个会话需要关注',
+  'page.title': '进度看板',
+  'page.hint': '所有工作空间的会话进度一览',
+  'tabs.aria': '会话状态分栏',
+  'tabs.all': '全部',
+  'tabs.running': '进行中',
+  'tabs.done': '已完成',
+  'group.running': '进行中',
+  'filter.aria': '按工作空间筛选',
+  'filter.all': '全部工作空间',
+  'filter.ungrouped': '未分组',
+  'status.pending.approval': '等待审批',
+  'status.pending.question': '等待回答',
+  'status.pending.plan-review': '等待计划评审',
+  'status.pending.other': '等待处理',
+  'meta.subagents.one': '{count} 个子代理运行中',
+  'meta.subagents.other': '{count} 个子代理运行中',
+  'meta.lastActive.justNow': '刚刚活跃',
+  'meta.lastActive.minutes': '{count} 分钟前活跃',
+  'meta.lastActive.hours': '{count} 小时前活跃',
+  'meta.lastActive.days': '{count} 天前活跃',
+  'meta.completedAt.justNow': '刚刚完成',
+  'meta.completedAt.minutes': '{count} 分钟前完成',
+  'meta.completedAt.hours': '{count} 小时前完成',
+  'meta.completedAt.days': '{count} 天前完成',
+  'group.unread': '未查看',
+  'group.recent': '最近完成',
+  'done.showMore': '显示更多（{count}）',
+  'done.showLess': '收起',
+  'empty.running': '当前没有进行中的会话',
+  'empty.done': '还没有已完成的会话',
+  'empty.all': '暂无进行中或未查看的已完成会话',
+  'card.open': '打开会话：{title}',
+} as const
+
+/** Dictionary key union shared by every locale. */
+export type ProgressKey = keyof typeof zh
+
+/** English dictionary, key-identical to the Chinese source of truth. */
+export const en: Record<ProgressKey, string> = {
+  'panel.label': 'Progress',
+  'panel.badge.one': '{count} session needs attention',
+  'panel.badge.other': '{count} sessions need attention',
+  'page.title': 'Progress Board',
+  'page.hint': 'Session progress across every workspace',
+  'tabs.aria': 'Session status sections',
+  'tabs.running': 'Running',
+  'tabs.done': 'Done',
+  'tabs.all': 'All',
+  'group.running': 'Running',
+  'filter.aria': 'Filter by workspace',
+  'filter.all': 'All workspaces',
+  'filter.ungrouped': 'Ungrouped',
+  'status.pending.approval': 'Approval needed',
+  'status.pending.question': 'Question pending',
+  'status.pending.plan-review': 'Plan review pending',
+  'status.pending.other': 'Action needed',
+  'meta.subagents.one': '{count} subagent running',
+  'meta.subagents.other': '{count} subagents running',
+  'meta.lastActive.justNow': 'active just now',
+  'meta.lastActive.minutes': 'active {count}m ago',
+  'meta.lastActive.hours': 'active {count}h ago',
+  'meta.lastActive.days': 'active {count}d ago',
+  'meta.completedAt.justNow': 'completed just now',
+  'meta.completedAt.minutes': 'completed {count}m ago',
+  'meta.completedAt.hours': 'completed {count}h ago',
+  'meta.completedAt.days': 'completed {count}d ago',
+  'group.unread': 'Unviewed',
+  'group.recent': 'Recently completed',
+  'done.showMore': 'Show more ({count})',
+  'done.showLess': 'Show less',
+  'empty.running': 'No sessions are running right now',
+  'empty.done': 'No completed sessions yet',
+  'empty.all': 'No running sessions or unviewed completions',
+  'card.open': 'Open session: {title}',
+}

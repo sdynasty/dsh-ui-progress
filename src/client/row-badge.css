@@ -1,0 +1,10 @@
+/*
+ * Dock the progress panel entry's badge to its sidebar row. The panellist row
+ * button and its label belong to ui-sidebar, so a badge contributed through
+ * the icon slot cannot reach the row's right edge from scoped CSS alone:
+ * this :has() rule makes exactly the row hosting our badge the badge's
+ * containing block, without depending on ui-sidebar's hashed class names.
+ */
+button:has([data-dsh-ui-progress-badge]) {
+  position: relative;
+}

@@ -1,0 +1,44 @@
+{
+  "name": "dsh-ui-progress",
+  "version": "0.1.0",
+  "description": "DeepSeek Harness 会话进度看板：侧边栏入口（三色角标）+ 全部/进行中/已完成分栏 + 工作空间筛选。Session progress board for DeepSeek Harness: sidebar badge, All/Running/Done sections, workspace filter.",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "progress",
+    "dashboard",
+    "session",
+    "kanban"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "README.en.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "author": "sdynasty",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sdynasty/dsh-ui-progress.git"
+  },
+  "homepage": "https://github.com/sdynasty/dsh-ui-progress#readme",
+  "bugs": "https://github.com/sdynasty/dsh-ui-progress/issues",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  }
+}
