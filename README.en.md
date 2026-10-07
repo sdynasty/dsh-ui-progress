@@ -7,6 +7,8 @@ English · [简体中文](README.md)
 
 A cross-workspace session progress board for the [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) web GUI. Adds a **Progress** entry to the sidebar — its badge counts sessions needing attention (running + unviewed completions) — opening a full-page board with **All** (default: running + unviewed completions only), **Running**, and **Done** sections, plus a workspace filter.
 
+![The progress board: running sessions, one awaiting approval, and an unviewed completion](screenshots/board.png)
+
 ## What you get
 
 - **Running** — every top-level session with live work. Sessions waiting on you (approval / question / plan review) sort first with an amber warning. Cards show the workspace chip, running-subagent count, and last-activity time.
