@@ -131,19 +131,35 @@ export function createCompletionLog(
         // the log as well. Before the first ready list arrives, keep everything.
         && (list.phase !== 'ready' || list.byId[entry.sessionId] !== undefined))
       let changed = next.length !== entries.length
-      const known = new Set(next.map(entry => entry.sessionId))
+      const fresh: CompletionLogEntry[] = []
       for (const id of list.ids) {
-        if (known.has(id) || archived.has(id)) continue
+        if (archived.has(id)) continue
         if (statuses.get(id)?.completionUnread !== true) continue
         const summary = list.byId[id]
         if (summary === undefined || summary.origin === 'subagent') continue
-        next = [{
+        const existing = next.find(entry => entry.sessionId === id)
+        // A logged completion whose Session has not moved since the record is
+        // the same completion replaying after a reload: keep its position.
+        if (existing !== undefined && summary.updatedAt <= existing.completedAt) continue
+        if (existing !== undefined) {
+          // Re-completion after new work: retire the stale record so the new
+          // completion leads the list.
+          next = next.filter(entry => entry.sessionId !== id)
+          changed = true
+        }
+        fresh.push({
           sessionId: id,
           completedAt: now(),
           title: summary.displayTitle,
           workspaceId: workspaceOfSession(workspaces.items, id),
-        }, ...next]
-        known.add(id)
+        })
+      }
+      if (fresh.length > 0) {
+        // A batch observed together (e.g. backfill at launch) orders by the
+        // Host's update recency rather than by list position.
+        fresh.sort((left, right) =>
+          (list.byId[right.sessionId]?.updatedAt ?? 0) - (list.byId[left.sessionId]?.updatedAt ?? 0))
+        next = [...fresh, ...next]
         changed = true
       }
       if (!changed) return

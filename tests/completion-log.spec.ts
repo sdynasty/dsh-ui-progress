@@ -67,6 +67,51 @@ describe('createCompletionLog', () => {
     expect(storage.writes).toHaveLength(1)
   })
 
+  it('moves a re-completed session to the top with a fresh timestamp', () => {
+    let now = 1000
+    const log = createCompletionLog(memoryStorage(), () => now)
+    // First completion: observed at 1000 after the session last moved at 900.
+    log.observe(listOf([summary('a', { updatedAt: 900 })]), unread('a'), workspacesOf())
+    // The session runs again (updatedAt advances past the record) and completes
+    // once more; meanwhile another session completed at 1800.
+    now = 2000
+    log.observe(
+      listOf([summary('a', { updatedAt: 1500 }), summary('b', { updatedAt: 1800 })]),
+      new Map([
+        ...unread('a'),
+        ...unread('b'),
+      ]),
+      workspacesOf(),
+    )
+    const { entries } = log.source.getSnapshot()
+    expect(entries.map(entry => entry.sessionId)).toEqual([sid('b'), sid('a')])
+    expect(entries.every(entry => entry.completedAt === 2000)).toBe(true)
+  })
+
+  it('does not re-date a completion replaying after a reload', () => {
+    const log = createCompletionLog(memoryStorage(), () => 5000)
+    const list = listOf([summary('a', { updatedAt: 900 })])
+    log.observe(list, unread('a'), workspacesOf())
+    const before = log.source.getSnapshot()
+    // The page reloaded: the same unread completion is still there, and the
+    // session has not moved since the record — the entry keeps its timestamp.
+    log.observe(list, unread('a'), workspacesOf())
+    expect(log.source.getSnapshot()).toBe(before)
+    expect(before.entries[0]?.completedAt).toBe(5000)
+  })
+
+  it('orders a batch observed together by host update recency', () => {
+    const log = createCompletionLog(memoryStorage(), () => 5000)
+    const list = listOf([
+      summary('a', { updatedAt: 100 }),
+      summary('b', { updatedAt: 300 }),
+      summary('c', { updatedAt: 200 }),
+    ])
+    log.observe(list, new Map([...unread('a'), ...unread('b'), ...unread('c')]), workspacesOf())
+    expect(log.source.getSnapshot().entries.map(entry => entry.sessionId))
+      .toEqual([sid('b'), sid('c'), sid('a')])
+  })
+
   it('keeps the snapshot identity stable when nothing changed', () => {
     const log = createCompletionLog(memoryStorage(), () => 5000)
     const list = listOf([summary('a')])
