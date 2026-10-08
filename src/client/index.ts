@@ -21,6 +21,7 @@ import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
 import type { MainPanelId } from '@deepseek-ai/dsh-client-ui-layout/client'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import { createCompletionLog } from './completion-log.ts'
+import { createRunClock } from './run-clock.ts'
 import { en, NS, zh, type ProgressKey } from './locales.ts'
 import { ProgressBoardPage, type ProgressBoardInjected } from './ProgressBoardPage.tsx'
 import { ProgressPanelIcon } from './ProgressPanelIcon.tsx'
@@ -45,16 +46,17 @@ export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-progress: dictionaries')
   const t = ctx.locale.bind(NS)
   const log = createCompletionLog()
-  // The log folds every root-snapshot generation so a completion is recorded
-  // even while the board panel is closed and even if the live unread flag
-  // clears before the next panel mount.
+  const runClock = createRunClock()
+  // Both observers fold every root-snapshot generation: a completion is
+  // recorded even while the board panel is closed and even if the live unread
+  // flag clears before the next panel mount, and a run keeps its start instant
+  // across reloads.
   ctx.effect(() => {
     const sync = (): void => {
-      log.observe(
-        ctx.sessions.list.getSnapshot(),
-        ctx.uiSession.sessionStatus.getSnapshot(),
-        ctx.workspaces.list.getSnapshot(),
-      )
+      const sessions = ctx.sessions.list.getSnapshot()
+      const statuses = ctx.uiSession.sessionStatus.getSnapshot()
+      log.observe(sessions, statuses, ctx.workspaces.list.getSnapshot())
+      runClock.observe(sessions, statuses)
     }
     sync()
     const off = [
@@ -73,7 +75,7 @@ export function apply(ctx: ClientContext): void {
     key: PANEL_ID,
     locale: NS,
     inject: (): ProgressBoardInjected => ({
-      hooks: { completionLog: log.source },
+      hooks: { completionLog: log.source, runClock: runClock.source },
       onOpenSession,
     }),
   }, ProgressBoardPage))

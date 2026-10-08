@@ -26,6 +26,8 @@ export interface BoardSession {
   readonly runningSubagents: number
   /** Finished while not selected and not yet opened. */
   readonly unread: boolean
+  /** Epoch ms the current run was first observed; running rows only. */
+  readonly startedAt: number | undefined
   /** Epoch ms of the last host-reported update. */
   readonly updatedAt: number
 }
@@ -71,12 +73,14 @@ export function workspaceOfSession(
  * @param list - Host Session list with live increments.
  * @param statuses - unified per-Session UI status facts.
  * @param workspaces - Workspace registry snapshot supplying the archive set.
+ * @param runStarts - observed run-start instants (see run-clock); optional.
  * @returns running and completed-unviewed rows plus the badge counts.
  */
 export function deriveBoard(
   list: SessionListState,
   statuses: SessionStatusSnapshot,
   workspaces: WorkspaceSnapshot,
+  runStarts?: ReadonlyMap<SessionId, number>,
 ): BoardProjection {
   const archived = new Set<SessionId>(workspaces.archivedSessionIds)
   // Running direct children per parent, counted over the full byId map because
@@ -109,6 +113,7 @@ export function deriveBoard(
       running,
       runningSubagents: runningChildren.get(id) ?? 0,
       unread,
+      startedAt: running ? runStarts?.get(id) : undefined,
       updatedAt: summary.updatedAt,
     })
   }

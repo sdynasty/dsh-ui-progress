@@ -50,10 +50,14 @@ export function SessionCard({
     || row.pendingKind === 'plan-review'
     ? `status.pending.${row.pendingKind}` as const
     : 'status.pending.other' as const
-  const phrase = relativePhrase(row.updatedAt, now())
+  const phrase = relativePhrase(row.startedAt ?? row.updatedAt, now())
+  // A running row with a known start reports elapsed run time: its last-active
+  // time would read "just now" forever, which carries no information.
+  const elapsed = row.running && row.startedAt !== undefined
+  const prefix = elapsed ? 'elapsed' as const : timePrefix
   const timeLabel = phrase.kind === 'justNow'
-    ? t(`meta.${timePrefix}.justNow`)
-    : t(`meta.${timePrefix}.${phrase.kind}`, { count: phrase.count })
+    ? t(`meta.${prefix}.justNow`)
+    : t(`meta.${prefix}.${phrase.kind}`, { count: phrase.count })
   return (
     <button
       type="button"

@@ -11,13 +11,13 @@ A cross-workspace session progress board for the [DeepSeek Harness](https://gith
 
 ## What you get
 
-- **Running** — every top-level session with live work. Sessions waiting on you (approval / question / plan review) sort first with an amber warning. Cards show the workspace chip, running-subagent count, and last-activity time.
+- **Running** — every top-level session with live work. Sessions waiting on you (approval / question / plan review) sort first with an amber warning. Cards show the workspace chip, running-subagent count, and the elapsed run time (ticking live; runs already in progress when the plugin loads count from that load).
 - **Done** — sessions that finished while unselected stay on top until viewed (green marker); everything else flows into **Recently completed** (newest first, 10 shown with a *Show more* toggle).
 - **Three-tone badge** — blue: work running only; green: unviewed completions waiting; amber: a session is waiting on you (highest priority).
 - **Workspace filter** — one dropdown filters every section (including an *Ungrouped* bucket). It is a filter, not a third tab: the native sidebar already owns workspace-grouped browsing.
 - Clicking a card opens the session directly (`ctx.uiWorkspace.openSession`).
 
-Everything derives from root framework snapshots (`useSessions` / `useSessionStatus` / `useWorkspaces`) through a single pure projection (`deriveBoard`), so the badge and the page can never disagree. Completion history is viewing state persisted to `localStorage` (capped at 50 entries / 30 days), pruned when a session is archived or forgotten by the host.
+Everything derives from root framework snapshots (`useSessions` / `useSessionStatus` / `useWorkspaces`) through a single pure projection (`deriveBoard`), so the badge and the page can never disagree. Completion history is viewing state persisted to `localStorage` (capped at 50 entries / 30 days), as are run-start instants so reloads keep elapsed times honest, pruned when a session is archived or forgotten by the host.
 
 ## Install
 

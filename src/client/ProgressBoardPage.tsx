@@ -12,16 +12,21 @@ import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
 import type {} from '@deepseek-ai/dsh-client-ui-session/client'
 import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
 import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import { deriveBoard, type BoardSession } from './board-model.ts'
 import type { CompletionLogSnapshot } from './completion-log.ts'
 import { NS } from './locales.ts'
 import { SessionCard, type SessionCardInjected } from './SessionCard.tsx'
 import css from './ProgressBoardPage.module.css'
 
-/** Injected completion history and Session navigation for the board page. */
+/** Injected completion history, run clock, and Session navigation for the board page. */
 export interface ProgressBoardInjected extends SessionCardInjected {
   /** Completion history observed by the registration, bound to `useCompletionLog`. */
-  readonly hooks: { readonly completionLog: HostObservable<CompletionLogSnapshot> }
+  readonly hooks: {
+    readonly completionLog: HostObservable<CompletionLogSnapshot>
+    /** Run-start instants observed by the registration, bound to `useRunClock`. */
+    readonly runClock: HostObservable<ReadonlyMap<SessionId, number>>
+  }
 }
 
 /** Root-scoped board props derived from the framework and injected actions. */
@@ -42,17 +47,18 @@ const RECENT_DEFAULT_COUNT = 10
  * @returns All/Running/Done sections with a shared Workspace filter; All leads.
  */
 export function ProgressBoardPage(props: ProgressBoardPageProps): ReactNode {
-  const { useSessions, useSessionStatus, useWorkspaces, useCompletionLog, onOpenSession, t } = props
+  const { useSessions, useSessionStatus, useWorkspaces, useCompletionLog, useRunClock, onOpenSession, t } = props
   const list = useSessions(snapshot => snapshot)
   const statuses = useSessionStatus(snapshot => snapshot)
   const workspaces = useWorkspaces(snapshot => snapshot)
   const log = useCompletionLog(snapshot => snapshot)
+  const runStarts = useRunClock(snapshot => snapshot)
   const [tab, setTab] = useState<BoardTab>('all')
   const [filter, setFilter] = useState<WorkspaceFilter>('all')
 
   const board = useMemo(
-    () => deriveBoard(list, statuses, workspaces),
-    [list, statuses, workspaces],
+    () => deriveBoard(list, statuses, workspaces, runStarts),
+    [list, statuses, workspaces, runStarts],
   )
   const inFilter = (workspaceId: WorkspaceId | undefined): boolean =>
     filter === 'all'
@@ -80,6 +86,7 @@ export function ProgressBoardPage(props: ProgressBoardPageProps): ReactNode {
         running: false,
         runningSubagents: 0,
         unread: false,
+        startedAt: undefined,
         updatedAt: entry.completedAt,
       })
     }

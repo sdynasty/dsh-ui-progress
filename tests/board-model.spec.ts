@@ -105,4 +105,15 @@ describe('deriveBoard', () => {
     const board = deriveBoard(listOf([summary('stale', { running: true })]), new Map(), workspacesOf([]))
     expect(board.running.map(row => row.id)).toEqual([sid('stale')])
   })
+
+  it('carries the observed run-start instant on running rows only', () => {
+    const list = listOf([summary('a', { running: true }), summary('b')])
+    const statuses = new Map([
+      [sid('b'), { running: false, pendingInteraction: undefined, completionUnread: true }],
+    ]) as SessionStatusSnapshot
+    const board = deriveBoard(list, statuses, workspacesOf([]), new Map([[sid('a'), 1234], [sid('b'), 5678]]))
+    expect(board.running[0]?.startedAt).toBe(1234)
+    expect(board.unreadDone[0]?.startedAt).toBeUndefined()
+    expect(deriveBoard(list, statuses, workspacesOf([])).running[0]?.startedAt).toBeUndefined()
+  })
 })
