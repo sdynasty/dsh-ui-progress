@@ -10,7 +10,7 @@ import { StateDot, type StateDotState } from '@deepseek-ai/dsh-client-ui-primiti
 import type { InjectFace, PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
 import type { NS } from './locales.ts'
 import type { BoardSession } from './board-model.ts'
-import { relativePhrase, useTickingNow } from './relative-time.ts'
+import { elapsedPhrase, relativePhrase, useTickingNow } from './relative-time.ts'
 import css from './SessionCard.module.css'
 
 /** Injected actions a card needs from its owning registration. */
@@ -50,14 +50,30 @@ export function SessionCard({
     || row.pendingKind === 'plan-review'
     ? `status.pending.${row.pendingKind}` as const
     : 'status.pending.other' as const
-  const phrase = relativePhrase(row.startedAt ?? row.updatedAt, now())
-  // A running row with a known start reports elapsed run time: its last-active
-  // time would read "just now" forever, which carries no information.
+  // A running row with a known start reports elapsed run time at compound
+  // precision: its last-active time would read "just now" forever, which
+  // carries no information.
   const elapsed = row.running && row.startedAt !== undefined
-  const prefix = elapsed ? 'elapsed' as const : timePrefix
-  const timeLabel = phrase.kind === 'justNow'
-    ? t(`meta.${prefix}.justNow`)
-    : t(`meta.${prefix}.${phrase.kind}`, { count: phrase.count })
+  let timeLabel: string
+  if (elapsed) {
+    const parts = elapsedPhrase(row.startedAt, now())
+    timeLabel = parts.kind === 'justNow'
+      ? t('meta.elapsed.justNow')
+      : parts.kind === 'minutes'
+        ? t('meta.elapsed.minutes', { count: parts.count })
+        : parts.kind === 'hours'
+          ? parts.minutes === 0
+            ? t('meta.elapsed.hours', { count: parts.hours })
+            : t('meta.elapsed.hoursMinutes', { hours: parts.hours, minutes: parts.minutes })
+          : parts.hours === 0
+            ? t('meta.elapsed.days', { count: parts.days })
+            : t('meta.elapsed.daysHours', { days: parts.days, hours: parts.hours })
+  } else {
+    const phrase = relativePhrase(row.updatedAt, now())
+    timeLabel = phrase.kind === 'justNow'
+      ? t(`meta.${timePrefix}.justNow`)
+      : t(`meta.${timePrefix}.${phrase.kind}`, { count: phrase.count })
+  }
   return (
     <button
       type="button"

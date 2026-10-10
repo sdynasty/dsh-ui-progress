@@ -1,6 +1,6 @@
 {
   "name": "dsh-ui-progress",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "DeepSeek Harness 会话进度看板：侧边栏入口（三色角标）+ 全部/进行中/已完成分栏 + 工作空间筛选。Session progress board for DeepSeek Harness: sidebar badge, All/Running/Done sections, workspace filter.",
   "keywords": [
     "dsh",
